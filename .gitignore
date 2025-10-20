@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.venv/
+env/
+venv/
+# Environment & secrets
+.env
+*.env
+config.json
+.credentials/
+# OS
+.DS_Store
+Thumbs.db
+# Data
+data_*/
+drive_files.db
+# Logs
+_logs/*
+# Editor
+.vscode
+.github
+.roo
+fathom_mcp.egg-info

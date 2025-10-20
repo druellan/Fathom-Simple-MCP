@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fathom-mcp"
+version = "0.1.0"
+description = "MCP server for accessing Fathom AI meeting recordings, transcripts, summaries, teams, and team members."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Fathom MCP Developer", email = "druellan@ecimtech.com"}
+]
+keywords = ["fathom", "mcp", "meetings", "transcripts", "summaries"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "fastmcp>=2.12.3",
+    "httpx>=0.28.1",
+]
+
+
+[project.scripts]
+fathom-mcp = "server:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
