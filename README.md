@@ -1,6 +1,6 @@
 # Fathom MCP Server
 
-A Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
+A read-only Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
 
 This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity.
 
