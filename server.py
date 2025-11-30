@@ -4,12 +4,38 @@ from pydantic import Field
 from config import config
 from fathom_client import client
 from contextlib import asynccontextmanager
+import json
+from toon import encode as toon_encode
 
 # Import tools
 from tools.meetings import list_meetings
 from tools.recordings import get_summary, get_transcript
 from tools.teams import list_teams
 from tools.team_members import list_team_members
+
+
+def output_serializer(data: Any) -> str:
+    """Serialize tool output based on OUTPUT_FORMAT configuration.
+
+    Args:
+        data: The data to serialize
+
+    Returns:
+        Serialized string in the configured format (TOON or JSON)
+    """
+    if isinstance(data, str):
+        # Don't serialize strings that are already formatted
+        return data
+
+    if config.output_format == "toon":
+        try:
+            return toon_encode(data)
+        except Exception:
+            pass
+
+    # Default to JSON
+    return json.dumps(data, indent=2, ensure_ascii=False)
+
 
 @asynccontextmanager
 async def lifespan(server):
@@ -29,7 +55,8 @@ mcp = FastMCP(
     lifespan=lifespan,
     on_duplicate_tools="warn",
     on_duplicate_resources="warn",
-    on_duplicate_prompts="warn"
+    on_duplicate_prompts="warn",
+    tool_serializer=output_serializer,
 )
 
 @mcp.tool

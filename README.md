@@ -2,7 +2,7 @@
 
 A Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
 
-This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity.
+This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the toon output format for less token usage and better LLM processing.
 
 ## Features
 
@@ -36,6 +36,7 @@ The server uses environment variables for configuration:
 
 - `FATHOM_API_KEY`: Your Fathom API key (required)
 - `FATHOM_TIMEOUT`: Request timeout in seconds (default: 30)
+- `OUTPUT_FORMAT`: Output format for tool responses ("toon" or "json", default: "toon")
 
 ## Usage
 
