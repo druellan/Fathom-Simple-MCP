@@ -7,6 +7,7 @@ class Config:
         self.api_key = os.getenv("FATHOM_API_KEY", "")
         self.base_url = "https://api.fathom.ai/external/v1"
         self.timeout = int(os.getenv("FATHOM_TIMEOUT", "30"))
+        self.output_format = os.getenv("OUTPUT_FORMAT", "toon")
 
     def validate(self) -> bool:
         """Validate configuration"""

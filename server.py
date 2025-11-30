@@ -4,12 +4,42 @@ from pydantic import Field
 from config import config
 from fathom_client import client
 from contextlib import asynccontextmanager
+import json
+from toon import encode as toon_encode
+from utils import filter_response
 
 # Import tools
-from tools.meetings import list_meetings
-from tools.recordings import get_summary, get_transcript
-from tools.teams import list_teams
-from tools.team_members import list_team_members
+import tools.meetings
+import tools.recordings
+import tools.teams
+import tools.team_members
+
+
+def output_serializer(data: Any) -> str:
+    """Serialize tool output based on OUTPUT_FORMAT configuration.
+
+    Args:
+        data: The data to serialize
+
+    Returns:
+        Sanitized and formatted output as a the configured format (TOON or JSON)
+    """
+    if isinstance(data, str):
+        # Don't serialize strings that are already formatted
+        return data
+
+    # Filter sensitive keys and sanitize output by removing null and empty values
+    filtered_data = filter_response(data)
+
+    if config.output_format == "toon":
+        try:
+            return toon_encode(filtered_data)
+        except Exception:
+            pass
+
+    # Default to JSON
+    return json.dumps(filtered_data, indent=2, ensure_ascii=False)
+
 
 @asynccontextmanager
 async def lifespan(server):
@@ -25,15 +55,23 @@ async def lifespan(server):
 
 mcp = FastMCP(
     name="Fathom MCP Server",
-    instructions="Use this tool to access Fathom meeting recordings, transcripts, summaries, teams, and team members. Focus on providing accurate and concise information based on the data available in Fathom.",
+    instructions=(
+        "Access Fathom AI meeting recordings, transcripts, summaries, teams, and team members. "
+        "Fathom automatically records, transcribes, and summarizes Zoom, Google Meet, and Microsoft Teams meetings. "
+        "Use list_meetings to browse meetings with filtering by date, attendees, teams, or content inclusion. "
+        "Use get_summary for AI-generated meeting summaries and get_transcript for timestamped speaker entries. "
+        "Use list_teams and list_team_members for organizational data. "
+        "All endpoints support pagination and efficient data retrieval optimized for LLM processing."
+    ),
     lifespan=lifespan,
     on_duplicate_tools="warn",
     on_duplicate_resources="warn",
-    on_duplicate_prompts="warn"
+    on_duplicate_prompts="warn",
+    tool_serializer=output_serializer,
 )
 
 @mcp.tool
-async def list_meetings_tool(
+async def list_meetings(
     ctx: Context,
     calendar_invitees: list[str] = Field(default=None, description="Filter by invitee emails"),
     calendar_invitees_domains: list[str] = Field(default=None, description="Filter by domains"),
@@ -48,8 +86,15 @@ async def list_meetings_tool(
     recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
     teams: list[str] = Field(default=None, description="Filter by team names")
 ) -> Dict[str, Any]:
-    """Retrieve a paginated list of meetings accessible to the API key. Supports filtering and optional inclusion of transcripts, summaries, action items, and CRM matches (where available)."""
-    return await list_meetings(
+    """Retrieve paginated meetings with filtering and optional content inclusion (transcripts, summaries, action items, CRM matches).
+    
+    Examples:
+        list_meetings()  # Get all meetings (paginated)
+        list_meetings(created_after="2024-01-01T00:00:00Z")  # Meetings after specific date
+        list_meetings(include_summary=True, include_transcript=True)  # Include full content
+        list_meetings(teams=["Sales", "Engineering"])  # Filter by specific teams
+    """
+    return await tools.meetings.list_meetings(
         ctx,
         calendar_invitees=calendar_invitees,
         calendar_invitees_domains=calendar_invitees_domains,
@@ -66,39 +111,56 @@ async def list_meetings_tool(
     )
 
 @mcp.tool
-async def get_summary_tool(
+async def get_summary(
     ctx: Context,
-    recording_id: int = Field(..., description="The recording identifier"),
-    destination_url: str = Field(default=None, description="Optional async callback URL")
+    recording_id: int = Field(..., description="The recording identifier")
 ) -> Dict[str, Any]:
-    """Fetch the markdown summary for a specific recording. Supports synchronous return or asynchronous POST when destination_url is provided."""
-    return await get_summary(ctx, recording_id, destination_url)
+    """Fetch AI-generated markdown summary for a recording.
+
+    Example:
+        get_summary_tool(recording_id=101470681)  # Get summary for specific recording
+    """
+    return await tools.recordings.get_summary(ctx, recording_id)
 
 @mcp.tool
-async def get_transcript_tool(
+async def get_transcript(
     ctx: Context,
-    recording_id: int = Field(..., description="The recording identifier"),
-    destination_url: str = Field(default=None, description="Optional async callback URL")
+    recording_id: int = Field(..., description="The recording identifier")
 ) -> Dict[str, Any]:
-    """Retrieve the transcript for a recording as an array of timestamped speaker entries. Supports synchronous response or asynchronous POST to destination_url."""
-    return await get_transcript(ctx, recording_id, destination_url)
+    """Retrieve timestamped speaker transcript for a recording.
+
+    Example:
+        get_transcript_tool(recording_id=101470681)  # Get transcript for specific recording
+    """
+    return await tools.recordings.get_transcript(ctx, recording_id)
 
 @mcp.tool
-async def list_teams_tool(
+async def list_teams(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor")
 ) -> Dict[str, Any]:
-    """Return a paginated list of teams associated with the account."""
-    return await list_teams(ctx, cursor)
+    """Retrieve paginated list of teams with organizational structure.
+    
+    Examples:
+        list_teams_tool()  # Get first page of teams
+        list_teams_tool(cursor="abc123")  # Get next page using cursor
+    """
+    return await tools.teams.list_teams(ctx, cursor)
 
 @mcp.tool
-async def list_team_members_tool(
+async def list_team_members(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
     team: str = Field(default=None, description="Filter by team name")
 ) -> Dict[str, Any]:
-    """Return a paginated list of team members; supports optional filtering by team name."""
-    return await list_team_members(ctx, cursor, team)
+    """Retrieve paginated team members with optional team filtering.
+    
+    Examples:
+        list_team_members_tool()  # Get all team members across all teams
+        list_team_members_tool(team="Engineering")  # Filter members by team name
+        list_team_members_tool(cursor="def456")  # Paginate through member list
+    """
+    return await tools.team_members.list_team_members(ctx, cursor, team)
 
 if __name__ == "__main__":
     mcp.run()

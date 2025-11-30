@@ -2,7 +2,7 @@
 
 A read-only Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
 
-This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity.
+This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the toon output format for less token usage and better LLM processing.
 
 ## Features
 
@@ -11,6 +11,7 @@ This implementation provides streamlined access to Fathom meeting data while min
 - **Get Transcript**: Retrieve transcript for a specific recording
 - **List Teams**: Retrieve all teams
 - **List Team Members**: Retrieve team members with optional team filtering
+- **TOON Format Support**: Optimized output format for reduced token usage and better LLM processing
 
 ## Requirements
 
@@ -36,6 +37,7 @@ The server uses environment variables for configuration:
 
 - `FATHOM_API_KEY`: Your Fathom API key (required)
 - `FATHOM_TIMEOUT`: Request timeout in seconds (default: 30)
+- `OUTPUT_FORMAT`: Output format for tool responses ("toon" or "json", default: "toon")
 
 ## Usage
 
@@ -94,14 +96,12 @@ Retrieve markdown summary for a recording.
 
 **Properties:**
 - `recording_id` (int): The recording identifier
-- `destination_url` (str, optional): Async callback URL
 
 ### `get_transcript`
 Retrieve transcript for a recording.
 
 **Properties:**
 - `recording_id` (int): The recording identifier
-- `destination_url` (str, optional): Async callback URL
 
 ### `list_teams`
 Retrieve teams with optional pagination.
@@ -118,10 +118,22 @@ Retrieve team members with optional filtering and pagination.
 
 ## Output Format
 
-All tools return data in filtered JSON format for improved readability and LLM processing.
-The output is filtered to remove empty, null or redundant information.
+The server supports two output formats configured via the `OUTPUT_FORMAT` environment variable:
+- **TOON** (default): Token-Optimized Object Notation - optimized for LLM processing with reduced token usage
+- **JSON**: Standard JSON format with indentation for human readability
 
-Example JSON output for meetings:
+All output is filtered to remove empty, null, or redundant information for improved efficiency.
+
+### TOON Format Example
+```toon
+items: [
+  title: "Quarterly Business Review"
+  recording_id: 123456789
+  created_at: "2025-03-01T17:01:30Z"
+]
+```
+
+### JSON Format Example
 ```json
 {
   "items": [
