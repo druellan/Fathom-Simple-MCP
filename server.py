@@ -6,7 +6,7 @@ from fathom_client import client
 from contextlib import asynccontextmanager
 import json
 from toon import encode as toon_encode
-from utils import remove_null_and_empty
+from utils import filter_response
 
 # Import tools
 from tools.meetings import list_meetings
@@ -28,17 +28,17 @@ def output_serializer(data: Any) -> str:
         # Don't serialize strings that are already formatted
         return data
 
-    # Sanitize output by removing null and empty values
-    sanitized_data = remove_null_and_empty(data)
+    # Filter sensitive keys and sanitize output by removing null and empty values
+    filtered_data = filter_response(data)
 
     if config.output_format == "toon":
         try:
-            return toon_encode(sanitized_data)
+            return toon_encode(filtered_data)
         except Exception:
             pass
 
     # Default to JSON
-    return json.dumps(sanitized_data, indent=2, ensure_ascii=False)
+    return json.dumps(filtered_data, indent=2, ensure_ascii=False)
 
 
 @asynccontextmanager
