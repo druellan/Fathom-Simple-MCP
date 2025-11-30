@@ -1,7 +1,6 @@
 from fastmcp import Context
 from typing import Optional
 from fathom_client import client, FathomAPIError
-from utils import filter_response
 
 async def get_summary(
     ctx: Context,
@@ -31,8 +30,8 @@ async def get_summary(
         
         result = await client.get_summary(recording_id, destination_url)
         await ctx.info("Successfully retrieved summary")
-        
-        return filter_response(result)
+
+        return result
         
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error: {e.message}")
@@ -74,8 +73,8 @@ async def get_transcript(
         
         result = await client.get_transcript(recording_id, destination_url)
         await ctx.info("Successfully retrieved transcript")
-        
-        return filter_response(result)
+
+        return result
         
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error: {e.message}")

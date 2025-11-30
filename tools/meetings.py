@@ -1,7 +1,6 @@
 from fastmcp import Context
 from typing import List, Optional
 from fathom_client import client, FathomAPIError
-from utils import filter_response
 
 
 def _build_meetings_params(
@@ -113,7 +112,7 @@ async def list_meetings(
         result = await client.get_meetings(params=params if params else None)
         await ctx.info("Successfully retrieved meetings")
 
-        return filter_response(result)
+        return result
 
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error: {e.message}")
