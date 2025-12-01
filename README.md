@@ -88,6 +88,7 @@ Retrieve meetings with optional filtering and pagination.
 - `include_crm_matches` (bool, optional): Include CRM matches
 - `include_summary` (bool, optional): Include summary
 - `include_transcript` (bool, optional): Include transcript
+- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
 - `recorded_by` (list[str], optional): Filter by recorder emails
 - `teams` (list[str], optional): Filter by team names
 
@@ -108,12 +109,14 @@ Retrieve teams with optional pagination.
 
 **Properties:**
 - `cursor` (str, optional): Pagination cursor
+- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
 
 ### `list_team_members`
 Retrieve team members with optional filtering and pagination.
 
 **Properties:**
 - `cursor` (str, optional): Pagination cursor
+- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
 - `team` (str, optional): Filter by team name
 
 ## Output Format

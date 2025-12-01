@@ -83,6 +83,7 @@ async def list_meetings(
     include_crm_matches: bool = Field(default=None, description="Include CRM matches"),
     include_summary: bool = Field(default=None, description="Include summary"),
     include_transcript: bool = Field(default=None, description="Include transcript"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
     recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
     teams: list[str] = Field(default=None, description="Filter by team names")
 ) -> Dict[str, Any]:
@@ -106,6 +107,7 @@ async def list_meetings(
         include_crm_matches=include_crm_matches,
         include_summary=include_summary,
         include_transcript=include_transcript,
+        per_page=per_page,
         recorded_by=recorded_by,
         teams=teams
     )
@@ -137,7 +139,8 @@ async def get_transcript(
 @mcp.tool
 async def list_teams(
     ctx: Context,
-    cursor: str = Field(default=None, description="Pagination cursor")
+    cursor: str = Field(default=None, description="Pagination cursor"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)")
 ) -> Dict[str, Any]:
     """Retrieve paginated list of teams with organizational structure.
     
@@ -145,12 +148,13 @@ async def list_teams(
         list_teams_tool()  # Get first page of teams
         list_teams_tool(cursor="abc123")  # Get next page using cursor
     """
-    return await tools.teams.list_teams(ctx, cursor)
+    return await tools.teams.list_teams(ctx, cursor, per_page)
 
 @mcp.tool
 async def list_team_members(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
     team: str = Field(default=None, description="Filter by team name")
 ) -> Dict[str, Any]:
     """Retrieve paginated team members with optional team filtering.
@@ -160,7 +164,7 @@ async def list_team_members(
         list_team_members_tool(team="Engineering")  # Filter members by team name
         list_team_members_tool(cursor="def456")  # Paginate through member list
     """
-    return await tools.team_members.list_team_members(ctx, cursor, team)
+    return await tools.team_members.list_team_members(ctx, cursor, team, per_page)
 
 if __name__ == "__main__":
     mcp.run()
