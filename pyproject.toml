@@ -22,6 +22,7 @@ dependencies = [
     "fastmcp>=2.12.3",
     "httpx>=0.28.1",
     "python-toon>=0.1.0",
+    "strip-markdown>=1.0.0",
 ]
 
 

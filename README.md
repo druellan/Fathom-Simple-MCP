@@ -6,9 +6,8 @@ This implementation provides streamlined access to Fathom meeting data while min
 
 ## Features
 
-- **List Meetings**: Retrieve meetings with optional filtering and inclusion of transcripts/summaries
-- **Get Summary**: Retrieve markdown summary for a specific recording
-- **Get Transcript**: Retrieve transcript for a specific recording
+- **List Meetings**: Retrieve meetings with optional filtering and inclusion of summaries
+- **Get Meeting Details**: Retrieve comprehensive meeting data including AI-generated summaries and transcripts
 - **List Teams**: Retrieve all teams
 - **List Team Members**: Retrieve team members with optional team filtering
 
@@ -84,22 +83,51 @@ Retrieve meetings with optional filtering and pagination.
 - `cursor` (str, optional): Pagination cursor
 - `include_action_items` (bool, optional): Include action items
 - `include_crm_matches` (bool, optional): Include CRM matches
-- `include_summary` (bool, optional): Include summary
 - `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
 - `recorded_by` (list[str], optional): Filter by recorder emails
 - `teams` (list[str], optional): Filter by team names
 
-### `get_summary`
-Retrieve markdown summary for a recording.
+### `get_meeting_details`
+Retrieve comprehensive meeting details including summary and metadata (without transcript).
 
 **Properties:**
 - `recording_id` (int): The recording identifier
 
-### `get_transcript`
-Retrieve transcript for a recording.
+**Returns:**
+A unified meeting object containing:
+- `recording_id`: Unique identifier for the recording
+- `title`: Meeting title
+- `meeting_url`: URL to the meeting recording
+- `share_url`: Shareable URL for the meeting
+- `created_at`: When the meeting was created
+- `scheduled_start_time`: Original scheduled start time
+- `scheduled_end_time`: Original scheduled end time
+- `recording_start_time`: When recording actually started
+- `recording_end_time`: When recording actually ended
+- `transcript_language`: Language of the transcript
+- `participants`: List of meeting participants with names, emails, and external/internal status
+- `recorded_by`: Information about who recorded the meeting (name, email, team)
+- `teams`: Teams associated with the meeting
+- `topics`: AI-detected topics discussed
+- `sentiment`: Overall sentiment analysis
+- `crm_matches`: CRM contact matches
+- `summary`: AI-generated meeting summary (converted to plain text from markdown)
+
+### `get_meeting_transcript`
+Retrieve meeting transcript with essential metadata (id, title, participants, dates).
 
 **Properties:**
 - `recording_id` (int): The recording identifier
+
+**Returns:**
+A transcript object containing:
+- `recording_id`: Unique identifier for the recording
+- `title`: Meeting title
+- `participants`: List of meeting participants
+- `created_at`: When the meeting was created
+- `scheduled_start_time`: Original scheduled start time
+- `scheduled_end_time`: Original scheduled end time
+- `transcript`: Full meeting transcript with timestamps
 
 ### `list_teams`
 Retrieve teams with optional pagination.
@@ -123,28 +151,6 @@ The server supports two output formats configured via the `OUTPUT_FORMAT` enviro
 - **JSON**: Standard JSON format with indentation for human readability
 
 All output is filtered to remove empty, null, or redundant information for improved efficiency.
-
-### TOON Format Example
-```toon
-items: [
-  title: "Quarterly Business Review"
-  recording_id: 123456789
-  created_at: "2025-03-01T17:01:30Z"
-]
-```
-
-### JSON Format Example
-```json
-{
-  "items": [
-    {
-      "title": "Quarterly Business Review",
-      "recording_id": 123456789,
-      "created_at": "2025-03-01T17:01:30Z"
-    }
-  ]
-}
-```
 
 ## Error Handling
 

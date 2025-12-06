@@ -59,7 +59,7 @@ mcp = FastMCP(
         "Access Fathom AI meeting recordings, transcripts, summaries, teams, and team members. "
         "Fathom automatically records, transcribes, and summarizes Zoom, Google Meet, and Microsoft Teams meetings. "
         "Use list_meetings to browse meetings with filtering by date, attendees, teams, or content inclusion. "
-        "Use get_summary for AI-generated meeting summaries and get_transcript for timestamped speaker entries. "
+        "Use get_meeting_details for comprehensive meeting data including AI-generated summaries and timestamped transcripts. "
         "Use list_teams and list_team_members for organizational data. "
         "All endpoints support pagination and efficient data retrieval optimized for LLM processing."
     ),
@@ -110,29 +110,31 @@ async def list_meetings(
         teams=teams
     )
 
+
 @mcp.tool
-async def get_summary(
+async def get_meeting_details(
     ctx: Context,
     recording_id: int = Field(..., description="The recording identifier")
 ) -> Dict[str, Any]:
-    """Fetch AI-generated markdown summary for a recording.
+    """Retrieve comprehensive meeting details including summary and metadata (without transcript).
 
     Example:
-        get_summary_tool(recording_id=101470681)  # Get summary for specific recording
+        get_meeting_details(101470681)
     """
-    return await tools.recordings.get_summary(ctx, recording_id)
+    return await tools.recordings.get_meeting_details(ctx, recording_id)
+
 
 @mcp.tool
-async def get_transcript(
+async def get_meeting_transcript(
     ctx: Context,
     recording_id: int = Field(..., description="The recording identifier")
 ) -> Dict[str, Any]:
-    """Retrieve timestamped speaker transcript for a recording.
+    """Retrieve meeting transcript with essential metadata (id, title, participants, dates).
 
     Example:
-        get_transcript_tool(recording_id=101470681)  # Get transcript for specific recording
+        get_meeting_transcript(101470681)
     """
-    return await tools.recordings.get_transcript(ctx, recording_id)
+    return await tools.recordings.get_meeting_transcript(ctx, recording_id)
 
 @mcp.tool
 async def list_teams(
