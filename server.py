@@ -59,7 +59,7 @@ mcp = FastMCP(
         "Access Fathom AI meeting recordings, transcripts, summaries, teams, and team members. "
         "Fathom automatically records, transcribes, and summarizes Zoom, Google Meet, and Microsoft Teams meetings. "
         "Use list_meetings to browse meetings with filtering by date, attendees, teams, or content inclusion. "
-        "Use get_summary for AI-generated meeting summaries and get_transcript for timestamped speaker entries. "
+        "Use get_meeting_details for comprehensive meeting data including AI-generated summaries and timestamped transcripts. "
         "Use list_teams and list_team_members for organizational data. "
         "All endpoints support pagination and efficient data retrieval optimized for LLM processing."
     ),
@@ -75,14 +75,13 @@ async def list_meetings(
     ctx: Context,
     calendar_invitees: list[str] = Field(default=None, description="Filter by invitee emails"),
     calendar_invitees_domains: list[str] = Field(default=None, description="Filter by domains"),
-    calendar_invitees_domains_type: str = Field(default=None, description="Domain filter type (all, only_internal, one_or_more_external)"),
     created_after: str = Field(default=None, description="ISO timestamp filter"),
     created_before: str = Field(default=None, description="ISO timestamp filter"),
     cursor: str = Field(default=None, description="Pagination cursor"),
     include_action_items: bool = Field(default=None, description="Include action items"),
     include_crm_matches: bool = Field(default=None, description="Include CRM matches"),
     include_summary: bool = Field(default=None, description="Include summary"),
-    include_transcript: bool = Field(default=None, description="Include transcript"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
     recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
     teams: list[str] = Field(default=None, description="Filter by team names")
 ) -> Dict[str, Any]:
@@ -91,53 +90,57 @@ async def list_meetings(
     Examples:
         list_meetings()  # Get all meetings (paginated)
         list_meetings(created_after="2024-01-01T00:00:00Z")  # Meetings after specific date
-        list_meetings(include_summary=True, include_transcript=True)  # Include full content
+        list_meetings(include_summary=True)  # Include summary
         list_meetings(teams=["Sales", "Engineering"])  # Filter by specific teams
+        list_meetings(calendar_invitees=["john.doe@company.com", "jane.smith@client.com"])  # Filter by specific attendees
+        list_meetings(calendar_invitees_domains=["company.com", "client.com"])  # Filter by attendee domains
     """
     return await tools.meetings.list_meetings(
         ctx,
         calendar_invitees=calendar_invitees,
         calendar_invitees_domains=calendar_invitees_domains,
-        calendar_invitees_domains_type=calendar_invitees_domains_type,
         created_after=created_after,
         created_before=created_before,
         cursor=cursor,
         include_action_items=include_action_items,
         include_crm_matches=include_crm_matches,
         include_summary=include_summary,
-        include_transcript=include_transcript,
+        per_page=per_page,
         recorded_by=recorded_by,
         teams=teams
     )
 
+
 @mcp.tool
-async def get_summary(
+async def get_meeting_details(
     ctx: Context,
     recording_id: int = Field(..., description="The recording identifier")
 ) -> Dict[str, Any]:
-    """Fetch AI-generated markdown summary for a recording.
+    """Retrieve comprehensive meeting details including summary and metadata (without transcript).
 
     Example:
-        get_summary_tool(recording_id=101470681)  # Get summary for specific recording
+        get_meeting_details(101470681)
     """
-    return await tools.recordings.get_summary(ctx, recording_id)
+    return await tools.recordings.get_meeting_details(ctx, recording_id)
+
 
 @mcp.tool
-async def get_transcript(
+async def get_meeting_transcript(
     ctx: Context,
     recording_id: int = Field(..., description="The recording identifier")
 ) -> Dict[str, Any]:
-    """Retrieve timestamped speaker transcript for a recording.
+    """Retrieve meeting transcript with essential metadata (id, title, participants, dates).
 
     Example:
-        get_transcript_tool(recording_id=101470681)  # Get transcript for specific recording
+        get_meeting_transcript(101470681)
     """
-    return await tools.recordings.get_transcript(ctx, recording_id)
+    return await tools.recordings.get_meeting_transcript(ctx, recording_id)
 
 @mcp.tool
 async def list_teams(
     ctx: Context,
-    cursor: str = Field(default=None, description="Pagination cursor")
+    cursor: str = Field(default=None, description="Pagination cursor"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)")
 ) -> Dict[str, Any]:
     """Retrieve paginated list of teams with organizational structure.
     
@@ -145,12 +148,13 @@ async def list_teams(
         list_teams_tool()  # Get first page of teams
         list_teams_tool(cursor="abc123")  # Get next page using cursor
     """
-    return await tools.teams.list_teams(ctx, cursor)
+    return await tools.teams.list_teams(ctx, cursor, per_page)
 
 @mcp.tool
 async def list_team_members(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
     team: str = Field(default=None, description="Filter by team name")
 ) -> Dict[str, Any]:
     """Retrieve paginated team members with optional team filtering.
@@ -160,7 +164,7 @@ async def list_team_members(
         list_team_members_tool(team="Engineering")  # Filter members by team name
         list_team_members_tool(cursor="def456")  # Paginate through member list
     """
-    return await tools.team_members.list_team_members(ctx, cursor, team)
+    return await tools.team_members.list_team_members(ctx, cursor, team, per_page)
 
 if __name__ == "__main__":
     mcp.run()

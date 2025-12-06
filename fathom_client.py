@@ -62,6 +62,19 @@ class FathomClient:
         """Get meetings with optional parameters"""
         return await self._request("GET", "/meetings", params=params)
 
+    async def get_meeting(self, recording_id: int) -> Dict[str, Any]:
+        """Get a single meeting by recording ID - fetches from meetings list and filters"""
+        # Get meetings list and filter by recording_id
+        meetings_data = await self.get_meetings()
+        
+        # Search for the specific meeting by recording_id
+        for meeting in meetings_data.get("items", []):
+            if meeting.get("recording_id") == recording_id:
+                return meeting
+        
+        # If not found, raise appropriate error
+        raise FathomAPIError(f"Meeting with recording_id {recording_id} not found", 404)
+
     async def get_summary(self, recording_id: int, destination_url: Optional[str] = None) -> Dict[str, Any]:
         """Get summary for a recording"""
         params = {}
