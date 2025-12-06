@@ -2,7 +2,7 @@
 
 A Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
 
-This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the toon output format for less token usage and better LLM processing.
+This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the **toon** output format for less token usage and better LLM processing.
 
 ## Features
 
@@ -11,7 +11,6 @@ This implementation provides streamlined access to Fathom meeting data while min
 - **Get Transcript**: Retrieve transcript for a specific recording
 - **List Teams**: Retrieve all teams
 - **List Team Members**: Retrieve team members with optional team filtering
-- **TOON Format Support**: Optimized output format for reduced token usage and better LLM processing
 
 ## Requirements
 
@@ -80,14 +79,12 @@ Retrieve meetings with optional filtering and pagination.
 **Properties:**
 - `calendar_invitees` (list[str], optional): Filter by invitee emails
 - `calendar_invitees_domains` (list[str], optional): Filter by domains
-- `calendar_invitees_domains_type` (str, optional): Domain filter type (all, only_internal, one_or_more_external)
 - `created_after` (str, optional): ISO timestamp filter
 - `created_before` (str, optional): ISO timestamp filter
 - `cursor` (str, optional): Pagination cursor
 - `include_action_items` (bool, optional): Include action items
 - `include_crm_matches` (bool, optional): Include CRM matches
 - `include_summary` (bool, optional): Include summary
-- `include_transcript` (bool, optional): Include transcript
 - `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
 - `recorded_by` (list[str], optional): Filter by recorder emails
 - `teams` (list[str], optional): Filter by team names

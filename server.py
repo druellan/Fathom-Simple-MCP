@@ -75,14 +75,12 @@ async def list_meetings(
     ctx: Context,
     calendar_invitees: list[str] = Field(default=None, description="Filter by invitee emails"),
     calendar_invitees_domains: list[str] = Field(default=None, description="Filter by domains"),
-    calendar_invitees_domains_type: str = Field(default=None, description="Domain filter type (all, only_internal, one_or_more_external)"),
     created_after: str = Field(default=None, description="ISO timestamp filter"),
     created_before: str = Field(default=None, description="ISO timestamp filter"),
     cursor: str = Field(default=None, description="Pagination cursor"),
     include_action_items: bool = Field(default=None, description="Include action items"),
     include_crm_matches: bool = Field(default=None, description="Include CRM matches"),
     include_summary: bool = Field(default=None, description="Include summary"),
-    include_transcript: bool = Field(default=None, description="Include transcript"),
     per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
     recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
     teams: list[str] = Field(default=None, description="Filter by team names")
@@ -92,21 +90,21 @@ async def list_meetings(
     Examples:
         list_meetings()  # Get all meetings (paginated)
         list_meetings(created_after="2024-01-01T00:00:00Z")  # Meetings after specific date
-        list_meetings(include_summary=True, include_transcript=True)  # Include full content
+        list_meetings(include_summary=True)  # Include summary
         list_meetings(teams=["Sales", "Engineering"])  # Filter by specific teams
+        list_meetings(calendar_invitees=["john.doe@company.com", "jane.smith@client.com"])  # Filter by specific attendees
+        list_meetings(calendar_invitees_domains=["company.com", "client.com"])  # Filter by attendee domains
     """
     return await tools.meetings.list_meetings(
         ctx,
         calendar_invitees=calendar_invitees,
         calendar_invitees_domains=calendar_invitees_domains,
-        calendar_invitees_domains_type=calendar_invitees_domains_type,
         created_after=created_after,
         created_before=created_before,
         cursor=cursor,
         include_action_items=include_action_items,
         include_crm_matches=include_crm_matches,
         include_summary=include_summary,
-        include_transcript=include_transcript,
         per_page=per_page,
         recorded_by=recorded_by,
         teams=teams
