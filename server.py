@@ -57,9 +57,9 @@ mcp = FastMCP(
     name="Fathom MCP Server",
     instructions=(
         "Access Fathom AI meeting recordings, transcripts, summaries, teams, and team members. "
-        "Fathom automatically records, transcribes, and summarizes Zoom, Google Meet, and Microsoft Teams meetings. "
+        "Fathom automatically records, transcribes, and summarizes meetings. "
         "Use list_meetings to browse meetings with filtering by date, attendees, teams, or content inclusion. "
-        "Use get_meeting_details for comprehensive meeting data including AI-generated summaries and timestamped transcripts. "
+        "Use get_meeting_details for comprehensive meeting data including AI-generated summaries. "
         "Use list_teams and list_team_members for organizational data. "
         "All endpoints support pagination and efficient data retrieval optimized for LLM processing."
     ),
@@ -119,7 +119,7 @@ async def get_meeting_details(
     """Retrieve comprehensive meeting details including summary and metadata (without transcript).
 
     Example:
-        get_meeting_details(101470681)
+        get_meeting_details([recording_id])
     """
     return await tools.recordings.get_meeting_details(ctx, recording_id)
 
@@ -132,7 +132,7 @@ async def get_meeting_transcript(
     """Retrieve meeting transcript with essential metadata (id, title, participants, dates).
 
     Example:
-        get_meeting_transcript(101470681)
+        get_meeting_transcript([recording_id])
     """
     return await tools.recordings.get_meeting_transcript(ctx, recording_id)
 
