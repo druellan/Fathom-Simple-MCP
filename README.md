@@ -1,5 +1,8 @@
 # Fathom MCP Server
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![](https://badge.mcpx.dev?type=server&features=tools 'MCP server with features')
+
 A Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
 
 This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the **toon** output format for less token usage and better LLM processing.
@@ -15,7 +18,6 @@ This implementation provides streamlined access to Fathom meeting data while min
 
 - Python 3.10+
 - Fathom API key
-- FastMCP 2.0+
 
 ## Installation
 
@@ -36,6 +38,7 @@ The server uses environment variables for configuration:
 - `FATHOM_API_KEY`: Your Fathom API key (required)
 - `FATHOM_TIMEOUT`: Request timeout in seconds (default: 30)
 - `OUTPUT_FORMAT`: Output format for tool responses ("toon" or "json", default: "toon")
+- `DEFAULT_PER_PAGE`: Number of results per page (default: 50)
 
 ## Usage
 
@@ -61,7 +64,7 @@ The server uses environment variables for configuration:
     "command": "uv",
     "args": [
       "run",
-      "server.py"
+      "fathom-mcp"
     ],
     "env": {
       "FATHOM_API_KEY": "<api-key>"
@@ -83,7 +86,7 @@ Retrieve meetings with optional filtering and pagination.
 - `cursor` (str, optional): Pagination cursor
 - `include_action_items` (bool, optional): Include action items
 - `include_crm_matches` (bool, optional): Include CRM matches
-- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+- `per_page` (int, optional): Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
 - `recorded_by` (list[str], optional): Filter by recorder emails
 - `teams` (list[str], optional): Filter by team names
 
@@ -134,14 +137,14 @@ Retrieve teams with optional pagination.
 
 **Properties:**
 - `cursor` (str, optional): Pagination cursor
-- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+- `per_page` (int, optional): Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
 
 ### `list_team_members`
 Retrieve team members with optional filtering and pagination.
 
 **Properties:**
 - `cursor` (str, optional): Pagination cursor
-- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+- `per_page` (int, optional): Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
 - `team` (str, optional): Filter by team name
 
 ## Output Format

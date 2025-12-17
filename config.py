@@ -8,7 +8,7 @@ class Config:
         self.base_url = "https://api.fathom.ai/external/v1"
         self.timeout = int(os.getenv("FATHOM_TIMEOUT", "30"))
         self.output_format = os.getenv("OUTPUT_FORMAT", "toon")
-        self.default_per_page = int(os.getenv("DEFAULT_PER_PAGE", "20"))
+        self.default_per_page = int(os.getenv("DEFAULT_PER_PAGE", "50"))
 
     def validate(self) -> bool:
         """Validate configuration"""

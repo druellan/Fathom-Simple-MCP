@@ -80,17 +80,15 @@ async def list_meetings(
     cursor: str = Field(default=None, description="Pagination cursor"),
     include_action_items: bool = Field(default=None, description="Include action items"),
     include_crm_matches: bool = Field(default=None, description="Include CRM matches"),
-    include_summary: bool = Field(default=None, description="Include summary"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
+    per_page: int = Field(default=50, description="Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)"),
     recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
     teams: list[str] = Field(default=None, description="Filter by team names")
 ) -> Dict[str, Any]:
-    """Retrieve paginated meetings with filtering and optional content inclusion (transcripts, summaries, action items, CRM matches).
+    """Retrieve paginated meetings with filtering and optional content inclusion (action items, CRM matches).
     
     Examples:
         list_meetings()  # Get all meetings (paginated)
         list_meetings(created_after="2024-01-01T00:00:00Z")  # Meetings after specific date
-        list_meetings(include_summary=True)  # Include summary
         list_meetings(teams=["Sales", "Engineering"])  # Filter by specific teams
         list_meetings(calendar_invitees=["john.doe@company.com", "jane.smith@client.com"])  # Filter by specific attendees
         list_meetings(calendar_invitees_domains=["company.com", "client.com"])  # Filter by attendee domains
@@ -104,7 +102,6 @@ async def list_meetings(
         cursor=cursor,
         include_action_items=include_action_items,
         include_crm_matches=include_crm_matches,
-        include_summary=include_summary,
         per_page=per_page,
         recorded_by=recorded_by,
         teams=teams
@@ -140,7 +137,7 @@ async def get_meeting_transcript(
 async def list_teams(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)")
+    per_page: int = Field(default=None, description="Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)")
 ) -> Dict[str, Any]:
     """Retrieve paginated list of teams with organizational structure.
     
@@ -154,7 +151,7 @@ async def list_teams(
 async def list_team_members(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
+    per_page: int = Field(default=None, description="Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)"),
     team: str = Field(default=None, description="Filter by team name")
 ) -> Dict[str, Any]:
     """Retrieve paginated team members with optional team filtering.

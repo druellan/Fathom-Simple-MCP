@@ -25,7 +25,6 @@ dependencies = [
     "strip-markdown>=1.0.0",
 ]
 
-
 [project.scripts]
 fathom-mcp = "server:main"
 
@@ -34,3 +33,34 @@ package-dir = {"" = "."}
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+version_files = [
+    "pyproject.toml:version",
+    "fathom_client.py:__version__"
+]
+tag_format = "v$version"
+bump_message = "chore(release): bump version to $current_version → $new_version"
+
+[tool.commitizen.customize]
+message_template = "{prefix}({scope}): {subject}"
+example = "feat(api): add new endpoint for meeting summaries"
+schema = "<type>(<scope>): <subject>"
+
+[tool.commitizen.types]
+feat = "A new feature"
+fix = "A bug fix"
+docs = "Documentation only changes"
+style = "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)"
+refactor = "A code change that neither fixes a bug nor adds a feature"
+perf = "A code change that improves performance"
+test = "Adding missing tests or correcting existing tests"
+build = "Changes that affect the build system or external dependencies (example scopes: uv, pip)"
+ci = "Changes to our CI configuration files and scripts (example scopes: GitHub Actions)"
+chore = "Other changes that don't modify src or test files"
+revert = "Reverts a previous commit"
+
+[dependency-groups]
+dev = []
