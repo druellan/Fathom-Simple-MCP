@@ -73,16 +73,27 @@ mcp = FastMCP(
 @mcp.tool
 async def list_meetings(
     ctx: Context,
-    calendar_invitees: list[str] = Field(default=None, description="Filter by invitee emails"),
-    calendar_invitees_domains: list[str] = Field(default=None, description="Filter by domains"),
+    calendar_invitees: list[str] = Field(
+        default=None, description="Filter by invitee emails"
+    ),
+    calendar_invitees_domains: list[str] = Field(
+        default=None, description="Filter by domains"
+    ),
     created_after: str = Field(default=None, description="ISO timestamp filter"),
     created_before: str = Field(default=None, description="ISO timestamp filter"),
     cursor: str = Field(default=None, description="Pagination cursor"),
-    include_action_items: bool = Field(default=None, description="Include action items"),
+    include_action_items: bool = Field(
+        default=None, description="Include action items"
+    ),
     include_crm_matches: bool = Field(default=None, description="Include CRM matches"),
-    per_page: int = Field(default=50, description="Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)"),
-    recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
-    teams: list[str] = Field(default=None, description="Filter by team names")
+    per_page: int = Field(
+        default=config.default_per_page,
+        description=f"Number of results per page (default: {config.default_per_page})",
+    ),
+    recorded_by: list[str] = Field(
+        default=None, description="Filter by recorder emails"
+    ),
+    teams: list[str] = Field(default=None, description="Filter by team names"),
 ) -> Dict[str, Any]:
     """Retrieve paginated meetings with filtering and optional content inclusion (action items, CRM matches).
     
@@ -137,7 +148,7 @@ async def get_meeting_transcript(
 async def list_teams(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)")
+    per_page: int = Field(default=None, description=f"Number of results per page (default: {config.default_per_page})")
 ) -> Dict[str, Any]:
     """Retrieve paginated list of teams with organizational structure.
     
@@ -151,7 +162,7 @@ async def list_teams(
 async def list_team_members(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)"),
+    per_page: int = Field(default=None, description=f"Number of results per page (default: {config.default_per_page})"),
     team: str = Field(default=None, description="Filter by team name")
 ) -> Dict[str, Any]:
     """Retrieve paginated team members with optional team filtering.
