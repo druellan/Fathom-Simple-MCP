@@ -72,6 +72,37 @@ mcp = FastMCP(
     tool_serializer=output_serializer,
 )
 
+
+@mcp.tool
+async def search_meetings(
+    ctx: Context,
+    query: str = Field(
+        ...,
+        description="Search query to match against meeting metadata (titles, participants, teams, topics, summaries, and optionally transcripts)",
+    ),
+    include_transcript: bool = Field(
+        default=False,
+        description="If True, search within transcripts and include them in results.",
+    ),
+) -> Dict[str, Any]:
+    """Search meetings by keyword across metadata fields and optionally transcripts.
+
+    This tool searches meeting metadata (titles, attendees, teams, topics, summaries) and optionally
+    full transcript content. Uses fuzzy matching to handle partial matches, plurals, and case-insensitive search.
+
+    By default, transcripts are NOT searched or included to optimize performance. Set include_transcript=True
+    to search within and return transcript data.
+
+    Fetches all meetings (with pagination) and returns those matching the search query.
+
+    Examples:
+        search_meetings(\"McDonalds\")  # Search metadata only
+        search_meetings(\"budget discussion\", include_transcript=True)  # Search including transcripts
+        search_meetings(\"engineering\")  # Find meetings related to engineering
+    """
+    return await tools.search.search_meetings(ctx, query, include_transcript)
+
+
 @mcp.tool
 async def list_meetings(
     ctx: Context,
@@ -119,29 +150,6 @@ async def list_meetings(
         recorded_by=recorded_by,
         teams=teams
     )
-
-
-@mcp.tool
-async def search_meetings(
-    ctx: Context,
-    query: str = Field(..., description="Search query to match against meeting metadata (titles, participants, teams)")
-) -> Dict[str, Any]:
-    """Search meetings by keyword across metadata fields (titles, participants, teams, topics).
-
-    This tool searches meeting metadata only - not full transcript content. Uses fuzzy matching
-    to handle partial matches, plurals, and case-insensitive search. For example, "McDonalds"
-    will match meeting titles, attendee names/emails, team names, and discussion topics.
-
-    Results include AI-generated summaries and CRM matches by default.
-
-    Fetches all meetings (with pagination) and returns those matching the search query.
-
-    Examples:
-        search_meetings(\"McDonalds\")  # Find meetings with 'McDonalds' in title, participants, or teams
-        search_meetings(\"acme\")  # Matches \"Acme Labs\", \"acme.com\" attendees, etc.
-        search_meetings(\"lab\")  # Matches \"Labs\", \"Laboratory\", plural handling included
-    """
-    return await tools.search.search_meetings(ctx, query)
 
 
 @mcp.tool

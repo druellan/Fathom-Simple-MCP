@@ -94,16 +94,23 @@ Retrieve meetings with optional filtering and pagination.
 - `teams` (list[str], optional): Filter by team names
 
 ### `search_meetings`
-Search meetings by keyword across titles, participants, teams, topics, and summaries.
+Search meetings by keyword across titles, participants, teams, topics, summaries, and optionally transcripts.
 
 **Properties:**
-- `query` (str, required): Search query to match against meeting metadata (titles, participants, teams, topics, summaries)
+- `query` (str, required): Search query to match against meeting metadata and optionally transcript content
+- `include_transcript` (bool, optional): If True, search within transcripts and include them in results (default: False). Warning: This is slower and more resource-intensive.
 
 **Returns:**
 A search results object containing:
-- `items`: List of matching meetings with full meeting details
+- `items`: List of matching meetings with full meeting details (and transcripts if requested)
 - `query`: The search query used
 - `total_matches`: Number of meetings that matched the search
+- `searched_transcripts`: Boolean indicating whether transcripts were searched
+
+**Examples:**
+- `search_meetings("McDonalds")` - Search metadata only (fast)
+- `search_meetings("budget discussion", include_transcript=True)` - Search including full transcripts (slower)
+- `search_meetings("engineering")` - Find meetings related to engineering topics
 
 ### `get_meeting_details`
 Retrieve comprehensive meeting details including summary and metadata (without transcript).
