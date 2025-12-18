@@ -57,11 +57,12 @@ async def lifespan(server):
 mcp = FastMCP(
     name="Fathom MCP Server",
     instructions=(
-        "Access Fathom AI meeting recordings, transcripts, summaries, teams, and team members. "
-        "Fathom automatically records, transcribes, and summarizes meetings. "
-        "Use list_meetings to browse meetings with filtering by date, attendees, teams, or content inclusion. "
-        "Use get_meeting_details for comprehensive meeting data including AI-generated summaries. "
-        "Use list_teams and list_team_members for organizational data. "
+        "Access Fathom.video meeting recordings, transcripts, summaries, teams, and team members."
+        "Fathom.video automatically records, transcribes, and summarizes meetings."
+        "Use search_meetings to find meetings by keywords in titles, summaries, participants, teams, and topics."
+        "Use list_meetings to browse meetings with filtering by date, attendees, teams, and domains."
+        "Use get_meeting_details for comprehensive meeting data including summaries."
+        "Use list_teams and list_team_members for organizational data."
         "All endpoints support pagination and efficient data retrieval optimized for LLM processing."
     ),
     lifespan=lifespan,
