@@ -13,6 +13,7 @@ import tools.meetings
 import tools.recordings
 import tools.teams
 import tools.team_members
+import tools.search
 
 
 def output_serializer(data: Any) -> str:
@@ -117,6 +118,29 @@ async def list_meetings(
         recorded_by=recorded_by,
         teams=teams
     )
+
+
+@mcp.tool
+async def search_meetings(
+    ctx: Context,
+    query: str = Field(..., description="Search query to match against meeting metadata (titles, participants, teams)")
+) -> Dict[str, Any]:
+    """Search meetings by keyword across metadata fields (titles, participants, teams, topics).
+
+    This tool searches meeting metadata only - not full transcript content. Uses fuzzy matching
+    to handle partial matches, plurals, and case-insensitive search. For example, "McDonalds"
+    will match meeting titles, attendee names/emails, team names, and discussion topics.
+
+    Results include AI-generated summaries and CRM matches by default.
+
+    Fetches all meetings (with pagination) and returns those matching the search query.
+
+    Examples:
+        search_meetings(\"McDonalds\")  # Find meetings with 'McDonalds' in title, participants, or teams
+        search_meetings(\"acme\")  # Matches \"Acme Labs\", \"acme.com\" attendees, etc.
+        search_meetings(\"lab\")  # Matches \"Labs\", \"Laboratory\", plural handling included
+    """
+    return await tools.search.search_meetings(ctx, query)
 
 
 @mcp.tool
