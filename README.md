@@ -9,9 +9,9 @@ This implementation provides streamlined access to Fathom meeting data while min
 
 ## Features
 
+- **Search Meetings**: Search meetings by keyword across titles, attendees, teams, topics, and summaries. Optionally search within transcripts.
 - **List Meetings**: Retrieve meetings with optional filtering and inclusion of summaries
 - **Get Meeting Details**: Retrieve comprehensive meeting data including AI-generated summaries and transcripts
-- **Search Meetings**: Search meetings by keyword across titles, attendees, teams, topics, and summaries
 - **List Teams**: Retrieve all teams
 - **List Team Members**: Retrieve team members with optional team filtering
 
