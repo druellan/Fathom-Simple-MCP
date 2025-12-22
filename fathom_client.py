@@ -1,3 +1,6 @@
+"""Fathom API client for MCP server"""
+__version__ = "0.1.0"
+
 import httpx
 from typing import Dict, Any, Optional
 from config import config

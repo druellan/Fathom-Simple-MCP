@@ -17,7 +17,7 @@ async def list_teams(
     Args:
         ctx: MCP context for logging
         cursor: Pagination cursor from previous response for next page
-        per_page: Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+        per_page: Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
     
     Returns:
         dict: {

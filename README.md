@@ -1,13 +1,17 @@
 # Fathom MCP Server
 
-A read-only Model Context Protocol (MCP) server for accessing Fathom AI API endpoints (meetings, recordings, transcripts, summaries, teams, team members) via GET operations. Built with [FastMCP](https://gofastmcp.com/).
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![](https://badge.mcpx.dev?type=server&features=tools 'MCP server with features')
 
-This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the **toon** output format for less token usage and better LLM processing.
+A Model Context Protocol (MCP) server for accessing Fathom.video meeting recordings, transcripts, summaries, teams, and team members.
+
+This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the **Toon** output format for less token usage and better LLM processing.
 
 ## Features
 
 - **List Meetings**: Retrieve meetings with optional filtering and inclusion of summaries
 - **Get Meeting Details**: Retrieve comprehensive meeting data including AI-generated summaries and transcripts
+- **Search Meetings**: Search meetings by keyword across titles, attendees, teams, topics, and summaries
 - **List Teams**: Retrieve all teams
 - **List Team Members**: Retrieve team members with optional team filtering
 
@@ -15,7 +19,6 @@ This implementation provides streamlined access to Fathom meeting data while min
 
 - Python 3.10+
 - Fathom API key
-- FastMCP 2.0+
 
 ## Installation
 
@@ -36,6 +39,7 @@ The server uses environment variables for configuration:
 - `FATHOM_API_KEY`: Your Fathom API key (required)
 - `FATHOM_TIMEOUT`: Request timeout in seconds (default: 30)
 - `OUTPUT_FORMAT`: Output format for tool responses ("toon" or "json", default: "toon")
+- `DEFAULT_PER_PAGE`: Number of results per page (default: 50)
 
 ## Usage
 
@@ -60,8 +64,10 @@ The server uses environment variables for configuration:
   "fathom": {
     "command": "uv",
     "args": [
+      "--directory",
+      "/mcp_path/fathom-mcp",
       "run",
-      "server.py"
+      "fathom-mcp"
     ],
     "env": {
       "FATHOM_API_KEY": "<api-key>"
@@ -83,9 +89,28 @@ Retrieve meetings with optional filtering and pagination.
 - `cursor` (str, optional): Pagination cursor
 - `include_action_items` (bool, optional): Include action items
 - `include_crm_matches` (bool, optional): Include CRM matches
-- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+- `per_page` (int, optional): Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
 - `recorded_by` (list[str], optional): Filter by recorder emails
 - `teams` (list[str], optional): Filter by team names
+
+### `search_meetings`
+Search meetings by keyword across titles, participants, teams, topics, summaries, and optionally transcripts.
+
+**Properties:**
+- `query` (str, required): Search query to match against meeting metadata and optionally transcript content
+- `include_transcript` (bool, optional): If True, search within transcripts and include them in results (default: False). Warning: This is slower and more resource-intensive.
+
+**Returns:**
+A search results object containing:
+- `items`: List of matching meetings with full meeting details (and transcripts if requested)
+- `query`: The search query used
+- `total_matches`: Number of meetings that matched the search
+- `searched_transcripts`: Boolean indicating whether transcripts were searched
+
+**Examples:**
+- `search_meetings("McDonalds")` - Search metadata only (fast)
+- `search_meetings("budget discussion", include_transcript=True)` - Search including full transcripts (slower)
+- `search_meetings("engineering")` - Find meetings related to engineering topics
 
 ### `get_meeting_details`
 Retrieve comprehensive meeting details including summary and metadata (without transcript).
@@ -134,15 +159,72 @@ Retrieve teams with optional pagination.
 
 **Properties:**
 - `cursor` (str, optional): Pagination cursor
-- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+- `per_page` (int, optional): Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
 
 ### `list_team_members`
 Retrieve team members with optional filtering and pagination.
 
 **Properties:**
 - `cursor` (str, optional): Pagination cursor
-- `per_page` (int, optional): Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+- `per_page` (int, optional): Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
 - `team` (str, optional): Filter by team name
+
+## MCP Configuration Examples
+
+### Claude Code
+
+```json
+{
+  "mcpServers": {
+    "fathom": {
+      "command": "python",
+      "args": ["path/to/fathom-mcp/server.py"],
+      "env": {
+        "FATHOM_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+### GitHub Copilot (VS Code)
+
+```json
+{
+  "servers": {
+    "fathom": {
+      "command": "python",
+      "args": ["path/to/fathom-mcp/server.py"],
+      "env": {
+        "FATHOM_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+### Roo Code
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "fathom": {
+        "command": "uv",
+        "args": [
+          "--directory",
+          "/mcp_path/fathom-mcp",
+          "run",
+          "fathom-mcp"
+        ],
+        "env": {
+          "FATHOM_API_KEY": "your-api-key-here"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Output Format
 

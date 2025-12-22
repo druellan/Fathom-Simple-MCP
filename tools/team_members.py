@@ -18,7 +18,7 @@ async def list_team_members(
         ctx: MCP context for logging
         cursor: Pagination cursor from previous response for next page
         team: Filter members by specific team name (case-sensitive)
-        per_page: Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+        per_page: Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
     
     Returns:
         dict: {

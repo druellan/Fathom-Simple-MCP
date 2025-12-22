@@ -13,6 +13,7 @@ import tools.meetings
 import tools.recordings
 import tools.teams
 import tools.team_members
+import tools.search
 
 
 def output_serializer(data: Any) -> str:
@@ -56,11 +57,12 @@ async def lifespan(server):
 mcp = FastMCP(
     name="Fathom MCP Server",
     instructions=(
-        "Access Fathom AI meeting recordings, transcripts, summaries, teams, and team members. "
-        "Fathom automatically records, transcribes, and summarizes meetings. "
-        "Use list_meetings to browse meetings with filtering by date, attendees, teams, or content inclusion. "
-        "Use get_meeting_details for comprehensive meeting data including AI-generated summaries. "
-        "Use list_teams and list_team_members for organizational data. "
+        "Access Fathom.video meeting recordings, transcripts, summaries, teams, and team members."
+        "Fathom.video automatically records, transcribes, and summarizes meetings."
+        "Use search_meetings to find meetings by keywords in titles, summaries, participants, teams, and topics."
+        "Use list_meetings to browse meetings with filtering by date, attendees, teams, and domains."
+        "Use get_meeting_details for comprehensive meeting data including summaries."
+        "Use list_teams and list_team_members for organizational data."
         "All endpoints support pagination and efficient data retrieval optimized for LLM processing."
     ),
     lifespan=lifespan,
@@ -70,27 +72,67 @@ mcp = FastMCP(
     tool_serializer=output_serializer,
 )
 
+
+@mcp.tool
+async def search_meetings(
+    ctx: Context,
+    query: str = Field(
+        ...,
+        description="Search query to match against meeting metadata (titles, participants, teams, topics, summaries, and optionally transcripts)",
+    ),
+    include_transcript: bool = Field(
+        default=False,
+        description="If True, search within transcripts and include them in results.",
+    ),
+) -> Dict[str, Any]:
+    """Search meetings by keyword across metadata fields and optionally transcripts.
+
+    This tool searches meeting metadata (titles, attendees, teams, topics, summaries) and optionally
+    full transcript content. Uses fuzzy matching to handle partial matches, plurals, and case-insensitive search.
+
+    By default, transcripts are NOT searched or included to optimize performance. Set include_transcript=True
+    to search within and return transcript data.
+
+    Fetches all meetings (with pagination) and returns those matching the search query.
+
+    Examples:
+        search_meetings(\"McDonalds\")  # Search metadata only
+        search_meetings(\"budget discussion\", include_transcript=True)  # Search including transcripts
+        search_meetings(\"engineering\")  # Find meetings related to engineering
+    """
+    return await tools.search.search_meetings(ctx, query, include_transcript)
+
+
 @mcp.tool
 async def list_meetings(
     ctx: Context,
-    calendar_invitees: list[str] = Field(default=None, description="Filter by invitee emails"),
-    calendar_invitees_domains: list[str] = Field(default=None, description="Filter by domains"),
+    calendar_invitees: list[str] = Field(
+        default=None, description="Filter by invitee emails"
+    ),
+    calendar_invitees_domains: list[str] = Field(
+        default=None, description="Filter by domains"
+    ),
     created_after: str = Field(default=None, description="ISO timestamp filter"),
     created_before: str = Field(default=None, description="ISO timestamp filter"),
     cursor: str = Field(default=None, description="Pagination cursor"),
-    include_action_items: bool = Field(default=None, description="Include action items"),
+    include_action_items: bool = Field(
+        default=None, description="Include action items"
+    ),
     include_crm_matches: bool = Field(default=None, description="Include CRM matches"),
-    include_summary: bool = Field(default=None, description="Include summary"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
-    recorded_by: list[str] = Field(default=None, description="Filter by recorder emails"),
-    teams: list[str] = Field(default=None, description="Filter by team names")
+    per_page: int = Field(
+        default=config.default_per_page,
+        description=f"Number of results per page (default: {config.default_per_page})",
+    ),
+    recorded_by: list[str] = Field(
+        default=None, description="Filter by recorder emails"
+    ),
+    teams: list[str] = Field(default=None, description="Filter by team names"),
 ) -> Dict[str, Any]:
-    """Retrieve paginated meetings with filtering and optional content inclusion (transcripts, summaries, action items, CRM matches).
+    """Retrieve paginated meetings with filtering and optional content inclusion (action items, CRM matches).
     
     Examples:
         list_meetings()  # Get all meetings (paginated)
         list_meetings(created_after="2024-01-01T00:00:00Z")  # Meetings after specific date
-        list_meetings(include_summary=True)  # Include summary
         list_meetings(teams=["Sales", "Engineering"])  # Filter by specific teams
         list_meetings(calendar_invitees=["john.doe@company.com", "jane.smith@client.com"])  # Filter by specific attendees
         list_meetings(calendar_invitees_domains=["company.com", "client.com"])  # Filter by attendee domains
@@ -104,7 +146,6 @@ async def list_meetings(
         cursor=cursor,
         include_action_items=include_action_items,
         include_crm_matches=include_crm_matches,
-        include_summary=include_summary,
         per_page=per_page,
         recorded_by=recorded_by,
         teams=teams
@@ -140,7 +181,7 @@ async def get_meeting_transcript(
 async def list_teams(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)")
+    per_page: int = Field(default=None, description=f"Number of results per page (default: {config.default_per_page})")
 ) -> Dict[str, Any]:
     """Retrieve paginated list of teams with organizational structure.
     
@@ -154,7 +195,7 @@ async def list_teams(
 async def list_team_members(
     ctx: Context,
     cursor: str = Field(default=None, description="Pagination cursor"),
-    per_page: int = Field(default=None, description="Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)"),
+    per_page: int = Field(default=None, description=f"Number of results per page (default: {config.default_per_page})"),
     team: str = Field(default=None, description="Filter by team name")
 ) -> Dict[str, Any]:
     """Retrieve paginated team members with optional team filtering.

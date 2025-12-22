@@ -12,7 +12,6 @@ def _build_meetings_params(
     cursor: Optional[str] = None,
     include_action_items: Optional[bool] = None,
     include_crm_matches: Optional[bool] = None,
-    include_summary: Optional[bool] = None,
     recorded_by: Optional[List[str]] = None,
     teams: Optional[List[str]] = None,
     per_page: Optional[int] = None
@@ -34,8 +33,6 @@ def _build_meetings_params(
         params["include_action_items"] = include_action_items
     if include_crm_matches is not None:
         params["include_crm_matches"] = include_crm_matches
-    if include_summary is not None:
-        params["include_summary"] = include_summary
     if recorded_by:
         params["recorded_by[]"] = recorded_by
     if teams:
@@ -54,16 +51,14 @@ async def list_meetings(
     cursor: Optional[str] = None,
     include_action_items: Optional[bool] = None,
     include_crm_matches: Optional[bool] = None,
-    include_summary: Optional[bool] = None,
     recorded_by: Optional[List[str]] = None,
     teams: Optional[List[str]] = None,
     per_page: Optional[int] = None
 ) -> dict:
     """Retrieve paginated list of meetings with optional filtering and content inclusion.
     
-    Returns meeting records with metadata, optionally including transcripts, summaries,
-    action items, and CRM matches. Use recording_id from results to fetch individual
-    recording content.
+    Returns meeting records with metadata, optionally including action items and CRM matches.
+    Use recording_id from results to fetch individual recording content including summaries.
     
     Args:
         ctx: MCP context for logging
@@ -74,10 +69,9 @@ async def list_meetings(
         cursor: Pagination cursor from previous response for next page
         include_action_items: Set True to include action items in response
         include_crm_matches: Set True to include CRM match data in response
-        include_summary: Set True to include meeting summaries in response
         recorded_by: List of email addresses to filter by meeting recorder
         teams: List of team names to filter meetings by associated teams
-        per_page: Number of results per page (default: 20, configurable via DEFAULT_PER_PAGE env var)
+        per_page: Number of results per page (default: 50, configurable via DEFAULT_PER_PAGE env var)
     
     Returns:
         dict: {
@@ -101,7 +95,6 @@ async def list_meetings(
             cursor=cursor,
             include_action_items=include_action_items,
             include_crm_matches=include_crm_matches,
-            include_summary=include_summary,
             recorded_by=recorded_by,
             teams=teams,
             per_page=effective_per_page
