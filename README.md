@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![](https://badge.mcpx.dev?type=server&features=tools 'MCP server with features')
+[![MCP Badge](https://lobehub.com/badge/mcp/druellan-fathom-simple-mcp)](https://lobehub.com/mcp/druellan-fathom-simple-mcp)
 
 A Model Context Protocol (MCP) server for accessing Fathom.video meeting recordings, transcripts, summaries, teams, and team members.
 
