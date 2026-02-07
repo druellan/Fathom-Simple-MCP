@@ -29,6 +29,7 @@ dependencies = [
 fathom-mcp = "server:main"
 
 [tool.setuptools]
+py-modules = ["server", "config", "utils", "fathom_client"]
 package-dir = {"" = "."}
 
 [tool.setuptools.packages.find]
