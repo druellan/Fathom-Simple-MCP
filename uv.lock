@@ -429,7 +429,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=2.12.3" },
+    { name = "fastmcp", specifier = ">=2.12.3,<3" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "python-toon", specifier = ">=0.1.0" },
     { name = "strip-markdown", specifier = ">=1.0.0" },
