@@ -2,6 +2,7 @@ from fastmcp import Context
 from typing import Optional
 from fathom_client import client, FathomAPIError
 from config import config
+from utils import filter_response
 
 async def list_team_members(
     ctx: Context,
@@ -44,8 +45,8 @@ async def list_team_members(
         result = await client.get_team_members(params=params if params else None)
         await ctx.info("Successfully retrieved team members")
 
-        return result
-        
+        return filter_response(result)
+
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error: {e.message}")
         raise e

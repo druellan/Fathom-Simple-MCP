@@ -1,5 +1,6 @@
 from fastmcp import Context
 from fathom_client import client, FathomAPIError
+from utils import filter_response
 from typing import Optional
 
 
@@ -241,13 +242,15 @@ async def search_meetings(
             f"Search completed: found {len(matched_meetings)} matches out of {len(all_meetings)} meetings"
         )
         
-        return {
+        result = {
             "items": filtered_meetings,
             "query": query,
             "total_matches": len(matched_meetings),
             "searched_transcripts": include_transcript
         }
-        
+
+        return filter_response(result)
+
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error during search: {e.message}")
         raise e

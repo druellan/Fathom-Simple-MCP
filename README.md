@@ -5,7 +5,7 @@
 
 A Model Context Protocol (MCP) server for accessing Fathom.video meeting recordings, transcripts, summaries, teams, and team members.
 
-This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the **Toon** output format for less token usage and better LLM processing.
+This implementation provides streamlined access to Fathom meeting data while minimizing API consumption. It is optimized for efficiency and simplicity, using the **Hybrid** output format (TOON text + JSON structured data) by default for less token usage and better LLM processing.
 
 ## Features
 
@@ -38,7 +38,7 @@ The server uses environment variables for configuration:
 
 - `FATHOM_API_KEY`: Your Fathom API key (required)
 - `FATHOM_TIMEOUT`: Request timeout in seconds (default: 30)
-- `OUTPUT_FORMAT`: Output format for tool responses ("toon" or "json", default: "toon")
+- `OUTPUT_FORMAT`: Output format for tool responses (`"hybrid"`, `"toon"`, or `"json"`, default: `"hybrid"`)
 - `DEFAULT_PER_PAGE`: Number of results per page (default: 50)
 
 ## Usage
@@ -228,9 +228,13 @@ Retrieve team members with optional filtering and pagination.
 
 ## Output Format
 
-The server supports two output formats configured via the `OUTPUT_FORMAT` environment variable:
-- **TOON** (default): Token-Optimized Object Notation - optimized for LLM processing with reduced token usage
-- **JSON**: Standard JSON format with indentation for human readability
+The server supports three output formats configured via the `OUTPUT_FORMAT` environment variable:
+
+| Mode | `content` (text) | `structured_content` | Description |
+|-|-|-|-|
+| **`hybrid`** (default) | TOON | JSON dict | Both TOON for token-efficient LLM reading and structured data for programmatic access |
+| **`toon`** | TOON | { "toon": toonText } | Pure TOON (Token-Optimized Object Notation) with no dual-format overhead |
+| **`json`** | JSON string | JSON dict | Standard FastMCP JSON output |
 
 All output is filtered to remove empty, null, or redundant information for improved efficiency.
 

@@ -1,6 +1,7 @@
 from fastmcp import Context
 from typing import Optional
 from fathom_client import client, FathomAPIError
+from utils import filter_response
 import asyncio
 import strip_markdown
 
@@ -53,7 +54,7 @@ async def get_meeting_details(
         }
 
         await ctx.info("Successfully retrieved meeting details")
-        return result
+        return filter_response(result)
 
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error: {e.message}")
@@ -97,7 +98,7 @@ async def get_meeting_transcript(
         }
 
         await ctx.info("Successfully retrieved meeting transcript")
-        return result
+        return filter_response(result)
 
     except FathomAPIError as e:
         await ctx.error(f"Fathom API error: {e.message}")
