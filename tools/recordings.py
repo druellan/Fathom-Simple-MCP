@@ -26,7 +26,25 @@ async def get_meeting_details(
         meeting_task = client.get_meeting(recording_id)
         summary_task = client.get_summary(recording_id)
 
-        meeting, summary = await asyncio.gather(meeting_task, summary_task)
+        meeting, summary = await asyncio.gather(
+            meeting_task, summary_task, return_exceptions=True
+        )
+
+        # If summary (primary payload) failed, propagate the error
+        if isinstance(summary, Exception):
+            raise summary
+
+        # Meeting metadata is best-effort: older recordings or those
+        # recorded by others may not appear on the first page of /meetings.
+        if isinstance(meeting, FathomAPIError):
+            await ctx.info(
+                f"Meeting metadata unavailable for recording {recording_id} "
+                f"({type(meeting).__name__} status={meeting.status_code}); "
+                f"returning summary without full metadata"
+            )
+            meeting = {}
+        elif isinstance(meeting, Exception):
+            raise meeting
 
         # Convert markdown summary to plain text
         markdown_summary = summary.get("summary", {}).get("markdown_formatted", "")
@@ -84,7 +102,25 @@ async def get_meeting_transcript(
         meeting_task = client.get_meeting(recording_id)
         transcript_task = client.get_transcript(recording_id)
 
-        meeting, transcript = await asyncio.gather(meeting_task, transcript_task)
+        meeting, transcript = await asyncio.gather(
+            meeting_task, transcript_task, return_exceptions=True
+        )
+
+        # If transcript (primary payload) failed, propagate the error
+        if isinstance(transcript, Exception):
+            raise transcript
+
+        # Meeting metadata is best-effort: older recordings or those
+        # recorded by others may not appear on the first page of /meetings.
+        if isinstance(meeting, FathomAPIError):
+            await ctx.info(
+                f"Meeting metadata unavailable for recording {recording_id} "
+                f"({type(meeting).__name__} status={meeting.status_code}); "
+                f"returning transcript without full metadata"
+            )
+            meeting = {}
+        elif isinstance(meeting, Exception):
+            raise meeting
         
         # Build transcript object with essential metadata
         result = {
