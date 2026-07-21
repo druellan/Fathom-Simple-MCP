@@ -4,14 +4,14 @@ __pycache__/
 *.pyo
 *.pyd
 *.pyc
-.venv/
 env/
 venv/
+# Hidden folders
+.*/
 # Environment & secrets
 .env
 *.env
 config.json
-.credentials/
 # OS
 .DS_Store
 Thumbs.db
@@ -21,7 +21,4 @@ drive_files.db
 # Logs
 _logs/*
 # Editor
-.vscode
-.github
-.roo
 fathom_mcp.egg-info

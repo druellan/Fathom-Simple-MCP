@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from datetime import datetime
+
 
 def remove_null_and_empty(obj: Any) -> Any:
     """Recursively remove null, empty dicts/lists, and empty strings from a dict/list."""
@@ -71,9 +71,4 @@ def filter_sensitive_keys(data: Dict[str, Any]) -> Dict[str, Any]:
                     item["recorded_by"].pop("email_domain", None)
 
     return filtered
-
-
-def get_current_timestamp() -> str:
-    """Get current UTC timestamp in ISO format"""
-    return datetime.utcnow().isoformat() + "Z"
 
